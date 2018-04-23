@@ -1,0 +1,10 @@
+var c
+var a=read()
+var b = read()
+
+if (b < 0) {
+    print("Division by zero")
+}
+else {
+    print(a / b)
+}
