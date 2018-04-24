@@ -5,9 +5,13 @@ fun main(vararg: Array<String>) {
     val file = FileInputStream("script.txt")
     var reader = file.bufferedReader()
     var lines = reader.lineSequence().toList()
-    var lineNumber = 1;
+    var lineNumber = 1
     for (line in lines) {
-        Interpreter.parseLine(line.trim(), lineNumber++)
+        try {
+            Interpreter.parseLine(line.trim(), lineNumber++)
+        } catch(e: Exception) {
+            break
+        }
     }
 }
 

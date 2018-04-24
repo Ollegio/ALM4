@@ -1,10 +1,20 @@
-var c
-var a=read()
+var c =16.3-4*2.3
+var a=6.1
 var b = read()
 
-if (b < 0) {
-    print("Division by zero")
+if (b > 0) {
+    c = a / b
+    print("a / b = ")
+    print(a / b)
+    print("\n")
+    if (0 != 0) {
+        print("0 != 0")
+    }
+    else {
+        print("0 == 0")
+    }
 }
 else {
-    print(a / b)
+    print("Division by zero")
+
 }

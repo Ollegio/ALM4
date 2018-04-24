@@ -1,4 +1,3 @@
-import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -17,7 +16,7 @@ object ExpressionParser {
             put("-", 1)
         }
 
-        operationSymbols = HashSet<String>(OPERATIONS.keys)
+        operationSymbols = HashSet(OPERATIONS.keys)
         operationSymbols.add("(")
         operationSymbols.add(")")
 
@@ -101,9 +100,9 @@ object ExpressionParser {
         if (index != expression.length) {
             out.add(expression.substring(index))
         }
-        if (stack.size + opCount + 1 != out.size - opCount) {
+/*        if (stack.size + opCount + 1 != out.size - opCount) {
             throw Exception("Wrong expression")
-        }
+        }*/
         while (!stack.empty()) {
             out.add(stack.pop())
         }
@@ -116,18 +115,26 @@ object ExpressionParser {
         return result.toString()
     }
 
-    fun calculateExpression(expression: String): BigDecimal {
+    fun calculateExpression(expression: String): Double {
         val rpn = sortingStation(expression)
         val tokenizer = StringTokenizer(rpn, " ")
-        val stack = Stack<BigDecimal>()
+        val stack = Stack<Double>()
         while (tokenizer.hasMoreTokens()) {
             val token = tokenizer.nextToken()
 
             if (!OPERATIONS.keys.contains(token)) {
-                stack.push(BigDecimal(token))
-            } else {
+                if (token[0].isDigit())
+                    stack.push(token.toDouble())
+                else
+                    try {
+                        stack.push(Interpreter.variables[token])
+                    } catch (e:Exception) {
+                        throw (Exception("Unknown variable $token"))
+                    }
+            }
+            else {
                 val operand2 = stack.pop()
-                val operand1 = if (stack.empty()) BigDecimal.ZERO else stack.pop()
+                val operand1 = if (stack.empty()) 0.0 else stack.pop()
                 when (token) {
                     "*" -> stack.push(operand1 * operand2)
                     "/" -> stack.push(operand1 / operand2)
@@ -148,4 +155,5 @@ object ExpressionParser {
             false
         }
     }
+
 }
