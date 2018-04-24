@@ -4,35 +4,36 @@ import kotlin.collections.HashMap
 
 object ExpressionParser {
 
-    private val MAIN_MATH_OPERATIONS: Map<String, Int>
+    private val OPERATIONS: Map<String, Int>
+    val operationSymbols: HashSet<String>
+    val functions = HashSet<String>(Interpreter.FUNCTIONS.keys)
 
     init {
-        MAIN_MATH_OPERATIONS = HashMap()
-        with(MAIN_MATH_OPERATIONS) {
+        OPERATIONS = HashMap()
+        with(OPERATIONS) {
             put("*", 2)
             put("/", 2)
             put("+", 1)
             put("-", 1)
         }
 
+        operationSymbols = HashSet<String>(OPERATIONS.keys)
+        operationSymbols.add("(")
+        operationSymbols.add(")")
 
     }
 
-    fun sortingStation(input: String, operations: Map<String, Int> = MAIN_MATH_OPERATIONS): String {
+    fun sortingStation(input: String): String {
         val leftBracket = "("
         val rightBracket = ")"
         var opCount = 0
         if (input.isEmpty())
             throw Exception("Expression isn't specified.")
-        if (operations.isEmpty())
-            throw Exception("Operations aren't specified.")
 
         val out = ArrayList<String>()
         val stack = Stack<String>()
         val expression = input.replace(" ", "")
-        val operationSymbols = HashSet<String>(operations.keys)
-        operationSymbols.add(leftBracket)
-        operationSymbols.add(rightBracket)
+
 
         var index = 0
         var findNext = true
@@ -44,6 +45,14 @@ object ExpressionParser {
                 val i = expression.indexOf(operation, index)
                 if (i in 0 until nextOperationIndex) {
                     nextOperation = operation
+                    nextOperationIndex = i
+                }
+            }
+
+            for (func in functions) {
+                val i = expression.indexOf(func, index)
+                if (i in 0 until nextOperationIndex) {
+                    nextOperation = func
                     nextOperationIndex = i
                 }
             }
@@ -66,9 +75,20 @@ object ExpressionParser {
                         }
                         stack.pop()
                     }
+                    in functions -> {
+                        val args = with(expression) {
+                            try {
+                                substring(indexOf("(" + 1, nextOperationIndex), indexOf(")", nextOperationIndex)).split(",")
+                            } catch (e: Exception) {
+                                emptyArray<Any>()
+                            }
+                        }
+                        val res = Interpreter.runFunc(nextOperation, arrayOf(args))
+                        out.add(res.toString())
+                    }
                     else -> {
                         while (!stack.empty() && stack.peek() != leftBracket &&
-                                (operations[nextOperation]!! <= operations[stack.peek()]!!)) {
+                                (OPERATIONS[nextOperation]!! <= OPERATIONS[stack.peek()]!!)) {
                             out.add(stack.pop())
                             opCount++
                         }
@@ -97,13 +117,13 @@ object ExpressionParser {
     }
 
     fun calculateExpression(expression: String): BigDecimal {
-        val rpn = sortingStation(expression, MAIN_MATH_OPERATIONS)
+        val rpn = sortingStation(expression)
         val tokenizer = StringTokenizer(rpn, " ")
         val stack = Stack<BigDecimal>()
         while (tokenizer.hasMoreTokens()) {
             val token = tokenizer.nextToken()
 
-            if (!MAIN_MATH_OPERATIONS.keys.contains(token)) {
+            if (!OPERATIONS.keys.contains(token)) {
                 stack.push(BigDecimal(token))
             } else {
                 val operand2 = stack.pop()
