@@ -1,3 +1,4 @@
+import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -5,7 +6,7 @@ object ExpressionParser {
 
     private val OPERATIONS: Map<String, Int>
     val operationSymbols: HashSet<String>
-    val functions = HashSet<String>(Interpreter.FUNCTIONS.keys)
+    private val functions = HashSet<String>(Interpreter.FUNCTIONS.keys)
 
     init {
         OPERATIONS = HashMap()
@@ -22,7 +23,7 @@ object ExpressionParser {
 
     }
 
-    fun sortingStation(input: String): String {
+    private fun sortingStation(input: String): String {
         val leftBracket = "("
         val rightBracket = ")"
         var opCount = 0
@@ -39,6 +40,7 @@ object ExpressionParser {
         while (findNext) {
             var nextOperationIndex = expression.length
             var nextOperation = ""
+            var mayUnary = true
 
             for (operation in operationSymbols) {
                 val i = expression.indexOf(operation, index)
@@ -47,7 +49,7 @@ object ExpressionParser {
                     nextOperationIndex = i
                 }
             }
-
+            
             for (func in functions) {
                 val i = expression.indexOf(func, index)
                 if (i in 0 until nextOperationIndex) {
@@ -61,9 +63,10 @@ object ExpressionParser {
             } else {
                 if (index != nextOperationIndex) {
                     out.add(expression.substring(index, nextOperationIndex))
+                    mayUnary = false
                 }
                 when (nextOperation) {
-                    leftBracket -> stack.push(nextOperation)
+                    leftBracket -> {stack.push(nextOperation);mayUnary = true}
                     rightBracket -> {
                         while (stack.peek() != leftBracket) {
                             out.add(stack.pop())
@@ -73,6 +76,7 @@ object ExpressionParser {
                             }
                         }
                         stack.pop()
+                        mayUnary = false
                     }
                     in functions -> {
                         val args = with(expression) {
@@ -84,14 +88,20 @@ object ExpressionParser {
                         }
                         val res = Interpreter.runFunc(nextOperation, arrayOf(args))
                         out.add(res.toString())
+                        mayUnary = false
                     }
                     else -> {
-                        while (!stack.empty() && stack.peek() != leftBracket &&
-                                (OPERATIONS[nextOperation]!! <= OPERATIONS[stack.peek()]!!)) {
-                            out.add(stack.pop())
-                            opCount++
+                        if (!mayUnary) {
+                            while (!stack.empty() && stack.peek() != leftBracket &&
+                                    (OPERATIONS[nextOperation]!! <= OPERATIONS[stack.peek()]!!)) {
+                                out.add(stack.pop())
+                                opCount++
+                            }
+                        } else {
+                            out.add("0.0")
                         }
                         stack.push(nextOperation)
+                        mayUnary = true
                     }
                 }
                 index = nextOperationIndex + nextOperation.length

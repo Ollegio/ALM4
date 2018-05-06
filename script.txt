@@ -1,4 +1,4 @@
-var c =16.3-4*2.3
+var c =10-4*(-2)
 var a=6.1
 var b = read()
 
