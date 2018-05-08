@@ -1,11 +1,10 @@
-import java.math.BigDecimal
 import java.util.*
 import kotlin.collections.HashMap
 
 object ExpressionParser {
 
     private val OPERATIONS: Map<String, Int>
-    val operationSymbols: HashSet<String>
+    private val operationSymbols: HashSet<String>
     private val functions = HashSet<String>(Interpreter.FUNCTIONS.keys)
 
     init {
@@ -110,9 +109,6 @@ object ExpressionParser {
         if (index != expression.length) {
             out.add(expression.substring(index))
         }
-/*        if (stack.size + opCount + 1 != out.size - opCount) {
-            throw Exception("Wrong expression")
-        }*/
         while (!stack.empty()) {
             out.add(stack.pop())
         }

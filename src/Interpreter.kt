@@ -1,6 +1,6 @@
 object Interpreter {
     var variables = mutableMapOf<String, Double>()
-    val variableBounds = 0..65535
+    private val variableBounds = 0.0..65535.0
     var FUNCTIONS = mutableMapOf<String, (Array<out Any>) -> Any>()
     private var scope = 1
     private var ignore = Array(16, { false })

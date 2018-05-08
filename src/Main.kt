@@ -3,9 +3,8 @@ import java.io.FileInputStream
 fun main(vararg: Array<String>) {
 
     val file = FileInputStream("script.txt")
-    var reader = file.bufferedReader()
-    var text = reader.readText()
-    var lines = reader.lineSequence().toList()
+    val reader = file.bufferedReader()
+    val lines = reader.lineSequence().toList()
     var lineNumber = 1
     for (line in lines) {
         try {
